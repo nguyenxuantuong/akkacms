@@ -104,7 +104,7 @@ class CoordinatorActor(matSource: SplitterHub.Splitter[TYPED_DATA_EVENT], mat: A
     system.scheduler.schedule(1 seconds, 1 seconds) {
       var counterVal = counter.get()
       val oldCounterVal = oldCounter.get()
-      println("Rate per second is ", (counterVal - oldCounterVal))
+      println("Rate per second for " + msgTypes.mkString(",") + " is ", (counterVal - oldCounterVal))
       oldCounter.set(counterVal)
     }
   }

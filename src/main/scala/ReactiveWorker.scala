@@ -70,7 +70,7 @@ object ReactiveWorker extends App {
       .via(Framing.delimiter(ByteString("\n"), maximumFrameLength = 1024, allowTruncation = true))
       .map(_.utf8String)
       .map(TYPED_DATA_EVENT(_))
-      .mapAsync(100)(e => (cmsActors(e.msgType) ? e).mapTo[String])
+      //.mapAsync(100)(e => (cmsActors(e.msgType) ? e).mapTo[String])
       .map(_ => ByteString.empty)
   }
 
