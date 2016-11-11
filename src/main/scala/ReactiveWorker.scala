@@ -12,6 +12,7 @@ import com.typesafe.config.ConfigFactory
 import org.json4s.native.Serialization
 
 import scala.concurrent.duration._
+import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success}
 
 class ReactiveWorkerSubscriber extends ActorSubscriber {
@@ -37,6 +38,7 @@ object ReactiveWorkerSubscriber {
 }
 
 case class WorkerRegister(port: Int, msgTypes: Set[String])
+case object WhenAskedRecoveryCompleted
 
 object ReactiveWorker extends App {
   val port = args.head.toInt
@@ -61,6 +63,13 @@ object ReactiveWorker extends App {
   implicit val ec = system.dispatcher
 
   val cmsActors: Map[String, ActorRef] = msgTypes.map(msgType => (msgType, system.actorOf(CmsActor.props(msgType)))).toMap
+  val recoveryCompleted = Future.sequence(cmsActors.values.toSeq.map (ref =>
+    ref.ask(WhenAskedRecoveryCompleted)(Timeout(30.seconds)).mapTo[Boolean]))
+  val waitForAllCmsActors = Await.result(recoveryCompleted, 30.seconds)
+  if (!waitForAllCmsActors.forall(p => p)) {
+    println("Recovery unsuccessful, existing...")
+    system.terminate()
+  }
 
   val handler = Sink.foreach[Tcp.IncomingConnection] { conn =>
     println("Client connected from: " + conn.remoteAddress)
@@ -70,7 +79,11 @@ object ReactiveWorker extends App {
       .via(Framing.delimiter(ByteString("\n"), maximumFrameLength = 1024, allowTruncation = true))
       .map(_.utf8String)
       .map(TYPED_DATA_EVENT(_))
+<<<<<<< fc258f0ee5fd198835c561da3ac4b6a93a95a047
       .mapAsync(100)(e => (cmsActors(e.msgType) ? e).mapTo[String])
+=======
+      .mapAsync(5000)(e => cmsActors(e.msgType).ask(e)(Timeout(30.seconds)).mapTo[String])
+>>>>>>> worker only accept tcp connection when its actors recovery have been completed
       .map(_ => ByteString.empty)
   }
 

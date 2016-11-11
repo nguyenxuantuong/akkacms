@@ -32,8 +32,8 @@ object ReactiveMaster extends App {
 
   // Obtain a Sink and Source which will publish and receive from the "bus" respectively.
   val (matSink, matSource) =
-    MergeHub.source[TYPED_DATA_EVENT](perProducerBufferSize = 256)
-      .toMat(SplitterHub.sink[TYPED_DATA_EVENT](bufferSize = 256))(Keep.both)
+    MergeHub.source[TYPED_DATA_EVENT](perProducerBufferSize = 2048)
+      .toMat(SplitterHub.sink[TYPED_DATA_EVENT](bufferSize = 2048))(Keep.both)
       .run()
 
   val coordinator = system.actorOf(
