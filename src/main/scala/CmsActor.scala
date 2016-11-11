@@ -30,12 +30,10 @@ class CmsActor(msgType: String) extends PersistentActor {
     case e:TYPED_DATA_EVENT =>
       val _sender = sender()
       total += 1
-      //updateState(e)
-      //println(total, event)
-      _sender ! "ACK"
-//      persist(e) { event =>
-//
-//      }
+      persist(e) { event =>
+        updateState(e)
+        _sender ! "ACK"
+      }
   }
 
   private def updateState(e: TYPED_DATA_EVENT): Unit = {

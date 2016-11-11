@@ -19,12 +19,12 @@ For many types of application, we would like to answer several questions in *rea
 A remaining question is how to build a platform which is "back-pressure" compliant, distributed and easy to query.
 
 
-### How to run the demo code
+### How to run the demo code (Make sure you run redis locally first)
 1. Run master process: sbt 'runMain ReactiveMaster 2551 8080'
 2. Run multiple workers process: <br/>
 sbt 'runMain ReactiveWorker 6002 ham:sender av:domain av:virus' <br/>
 sbt 'runMain ReactiveWorker 6001 ham:ip' <br/>
-3. Run a mock client to stream data into master. The mock client will establish 4 different connections and stream data to the server.
+3. Run a mock client to stream data into master. The mock client will establish 4 different connections and stream data to the server. <br/>
 sbt 'runMain ReactiveClient 8080'
 
 
